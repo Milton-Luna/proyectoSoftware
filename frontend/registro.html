@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgb(31, 31, 31);
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgb(162, 162, 162);
+            padding: 70px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0 100px 0 0;
+            width: 300px;
+            text-align: center;
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .center-image-container {
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 100%;
+            background-image: url('imagenes/ITP logo principal.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        input {
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 3px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-image-container"></div>
+
+    <div class="container">
+        <h2>Crear Usuario</h2>
+        <div id="message" class="error"></div>
+        <form id="registerForm" onsubmit="event.preventDefault(); register();">
+            <input type="text" id="newUsername" placeholder="Nuevo Usuario" required>
+            <input type="password" id="newPassword" placeholder="Nueva Contraseña" required minlength="6">
+            <button type="submit">Registrar</button>
+        </form>
+        
+        <!-- Botón para regresar a la página de inicio de sesión -->
+        <button onclick="window.location.href='index.html'">Volver a Iniciar Sesión</button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        function register() {
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const messageDiv = document.getElementById('message');
+
+            // Validación básica
+            if (newUsername === "" || newPassword.length < 6) {
+                messageDiv.textContent = "Ingrese un usuario y una contraseña de al menos 6 caracteres.";
+                messageDiv.className = "error";
+                return;
+            }
+
+            // Verifica si el usuario ya existe usando la función de auth.js
+            if (userExists(newUsername)) {
+                messageDiv.textContent = "El usuario ya existe.";
+                messageDiv.className = "error";
+            } else {
+                // Guardar el usuario en la base de datos usando la función de auth.js
+                saveUserToDatabase(newUsername, newPassword);
+                messageDiv.textContent = "Usuario creado exitosamente!";
+                messageDiv.className = "success";
+                setTimeout(() => {
+                    window.location.href = "index.html"; // Redirige al login después del registro
+                }, 1000);
+            }
+        }
+
+        function userExists(username) {
+            // Verifica si el usuario existe en el localStorage utilizando auth.js
+            const users = JSON.parse(localStorage.getItem('users')) || {};
+            return users.hasOwnProperty(username);
+        }
+
+        function saveUserToDatabase(username, password) {
+            // Guarda el nuevo usuario en el localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || {};
+            users[username] = password; // Considera agregar un hash de la contraseña aquí
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    </script>
+</body>
+</html>

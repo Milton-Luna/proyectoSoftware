@@ -1,0 +1,14 @@
+{
+    "name": "ryzen5/calendario_academico",
+    "description": "Proyecto de calendario académico",
+    "type": "project",
+    "require": {
+        "doctrine/dbal": "^3.2",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}

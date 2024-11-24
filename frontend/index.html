@@ -1,0 +1,136 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgb(31, 31, 31);
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgb(162, 162, 162);
+            padding: 70px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0 100px 0 0;
+            width: 300px;
+            text-align: center;
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .center-image-container {
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 100%;
+            background-image: url('imagenes/ITP logo principal.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        input {
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 3px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-image-container"></div>
+
+    <div class="container">
+        <h2>INICIAR SESIÓN</h2>
+        <div id="error" class="error"></div>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Usuario" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <label>
+                <input type="checkbox" id="rememberMe"> Recordar contraseña
+            </label>
+            <button type="button" onclick="login()">Iniciar Sesión</button>
+        </form>
+        
+        <!-- Botón para registrar un nuevo usuario -->
+        <button onclick="window.location.href='registro.html'">Registrar Nuevo Usuario</button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        window.onload = function() {
+            loadUserCredentials();
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorDiv = document.getElementById('error');
+
+            const storedPassword = getUserFromDatabase(username);
+
+            if (storedPassword && storedPassword === password) {
+                errorDiv.textContent = "Inicio de sesión exitoso!";
+                errorDiv.style.color = "green";
+                saveUserCredentials(username, password, rememberMe);
+                setTimeout(() => {
+                    window.location.href = "agendar_eventos.html";
+                }, 1000);
+            } else if (!storedPassword) {
+                errorDiv.textContent = "Usuario no encontrado. Por favor, crea uno nuevo.";
+                errorDiv.style.color = "red";
+            } else {
+                errorDiv.textContent = "Contraseña incorrecta.";
+                errorDiv.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>

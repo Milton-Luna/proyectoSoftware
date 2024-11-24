@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Académico</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: rgb(31, 31, 31);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            background-color: rgb(60, 60, 60);
+            border-radius: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+            color: white;
+            margin-top: 20px;
+          /*  position: relative; */
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffdd57;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .event-form {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group label {
+            color: #ddd;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            color: #333;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .events-table th, .events-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #444;
+            background-color: #333;
+        }
+
+        .events-table th {
+            background-color: #444;
+            color: #ffdd57;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #444;
+            width: 80px;
+            height: 100%;
+            padding-top: 20px;
+            border-radius: 20px 0 0 20px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar button {
+            background-color: transparent;
+            color: white;
+            font-size: 16px;
+            margin: 15px 0;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar button.active {
+            background-color: #333;
+            border-radius: 10px;
+        }
+
+        .day-label {
+            font-size: 18px;
+            color: #ffdd57;
+            text-align: center;
+            margin-bottom: 15px;
+            background-color: #333;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        #notification {
+            margin-top: 20px;
+            padding: 10px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <button onclick="filterEventsByDay('lunes')" id="btn-lunes">Lunes</button>
+        <button onclick="filterEventsByDay('martes')" id="btn-martes">Martes</button>
+        <button onclick="filterEventsByDay('miércoles')" id="btn-miércoles">Miércoles</button>
+        <button onclick="filterEventsByDay('jueves')" id="btn-jueves">Jueves</button>
+        <button onclick="filterEventsByDay('viernes')" id="btn-viernes">Viernes</button>
+        <button onclick="filterEventsByDay('sábado')" id="btn-sábado">Sábado</button>
+        <button onclick="filterEventsByDay('domingo')" id="btn-domingo">Domingo</button>
+    </div>
+
+    <div class="container">
+        <h1>Calendario Académico</h1>
+        <form class="event-form" id="eventForm">
+            <div class="form-group">
+                <label for="event-title">Título del Evento:</label>
+                <input type="text" id="event-title" placeholder="Título del Evento" required>
+            </div>
+            <div class="form-group">
+                <label for="event-description">Descripción:</label>
+                <textarea id="event-description" placeholder="Descripción" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="start-date">Fecha de Inicio:</label>
+                <input type="date" id="start-date" required>
+            </div>
+            <div class="form-group">
+                <label for="end-date">Fecha de Fin:</label>
+                <input type="date" id="end-date" required>
+            </div>
+            <div class="form-group">
+                <label for="event-repeat">Recurrente:</label>
+                <select id="event-repeat">
+                    <option value="none">No</option>
+                    <option value="daily">Diario</option>
+                    <option value="weekly">Semanal</option>
+                </select>
+            </div>
+            <button type="button" class="btn-submit" onclick="addEvent()">Agregar Evento</button>
+        </form>
+        <h2 class="day-label" id="selectedDay">Lunes</h2>
+        <table class="events-table">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha de Fin</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="eventList">
+                <!-- Aquí se agregarán los eventos -->
+            </tbody>
+        </table>
+        <div id="notification"></div>
+    </div>
+
+    <script>
+        let editIndex = null;
+        let selectedDay = 'lunes';
+
+        // Agregar evento
+        function addEvent() {
+            const eventTitle = document.getElementById('event-title').value;
+            const eventDescription = document.getElementById('event-description').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const repeatType = document.getElementById('event-repeat').value;
+
+            if (!eventTitle || !eventDescription || !startDate || !endDate) {
+                showNotification("Todos los campos son obligatorios.", "error");
+                return;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                showNotification("La fecha de inicio no puede ser posterior a la fecha de fin.", "error");
+                return;
+            }
+
+            let events = JSON.parse(localStorage.getItem('events')) || [];
+
+            if (editIndex !== null) {
+                events[editIndex] = { title: eventTitle, description: eventDescription, startDate, endDate, repeatType };
+                editIndex = null;
+            } else {
+                events.push({ title: eventTitle, description: eventDescription, startDate, endDate, repeatType });
+            }
+
+            localStorage.setItem('events', JSON.stringify(events));
+            document.getElementById('eventForm').reset();
+            showNotification("Evento agregado exitosamente.", "success");
+            loadEvents();
+        }
+
+        // Cargar eventos
+        function loadEvents() {
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = '';
+            let events = JSON.parse(localStorage.getItem('events')) || [];
+            const filteredEvents = events.filter(event => {
+                const eventDate = new Date(event.startDate);
+                const eventDay = eventDate.toLocaleDateString('es-ES', { weekday: 'long' });
+                return eventDay.toLowerCase() === selectedDay;
+            });
+
+            filteredEvents.forEach((event, index) => {
+                let row = `<tr>
+                    <td>${event.title}</td>
+                    <td>${event.startDate}</td>
+                    <td>${event.endDate}</td>
+                    <td>${event.description}</td>
+                    <td>
+                        <button class="btn" onclick="editEvent(${index})">Modificar</button>
+                        <button class="btn" onclick="deleteEvent(${index})">Eliminar</button>
+                    </td>
+                </tr>`;
+                eventList.innerHTML += row;
+            });
+        }
+
+        // Filtrar eventos por día
+        function filterEventsByDay(day) {
+            selectedDay = day;
+            document.getElementById('selectedDay').textContent = capitalizeFirstLetter(day);
+            updateSidebarButtons(day);
+            loadEvents();
+        }
+
+        // Notificación
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.color = type === 'success' ? 'green' : 'red';
+            notification.style.display = 'block';
+            setTimeout(() => notification.style.display = 'none', 3000);
+        }
+
+        // Editar evento
+        function editEvent(index) {
+            let events = JSON.parse(localStorage.getItem('events')) || [];
+            const event = events[index];
+
+            document.getElementById('event-title').value = event.title;
+            document.getElementById('event-description').value = event.description;
+            document.getElementById('start-date').value = event.startDate;
+            document.getElementById('end-date').value = event.endDate;
+            document.getElementById('event-repeat').value = event.repeatType;
+            editIndex = index;
+        }
+
+        // Eliminar evento
+        function deleteEvent(index) {
+            let events = JSON.parse(localStorage.getItem('events')) || [];
+            events.splice(index, 1);
+            localStorage.setItem('events', JSON.stringify(events));
+            showNotification("Evento eliminado exitosamente.", "success");
+            loadEvents();
+        }
+
+        // Actualizar botones de la barra lateral
+        function updateSidebarButtons(day) {
+            document.querySelectorAll('.sidebar button').forEach(button => button.classList.remove('active'));
+            document.getElementById(`btn-${day}`).classList.add('active');
+        }
+
+        // Función para capitalizar la primera letra
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Al cargar la página
+        window.onload = function() {
+            filterEventsByDay('lunes');
+        };
+    </script>
+</body>
+</html>
